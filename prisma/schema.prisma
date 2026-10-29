@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Event {
+  id           Int          @id
+  title        String
+  description  String
+  date         String
+  time         String
+  speaker      String
+  speakerBio   String?
+  category     String
+  isFree       Boolean
+  cost         Float
+  capacity     Int
+  initialCount Int          @default(0)
+  location     String
+  agenda       Json?
+  enrollments  Enrollment[]
+  favorites    Favorite[]
+  reviews      Review[]
+}
+
+model Student {
+  email       String       @id
+  name        String?
+  enrollments Enrollment[]
+  favorites   Favorite[]
+  reviews     Review[]
+  createdAt   DateTime     @default(now())
+}
+
+model Enrollment {
+  studentEmail String
+  eventId      Int
+  createdAt    DateTime @default(now())
+  student      Student  @relation(fields: [studentEmail], references: [email], onDelete: Cascade)
+  event        Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@id([studentEmail, eventId])
+  @@index([eventId])
+}
+
+model Favorite {
+  studentEmail String
+  eventId      Int
+  createdAt    DateTime @default(now())
+  student      Student  @relation(fields: [studentEmail], references: [email], onDelete: Cascade)
+  event        Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@id([studentEmail, eventId])
+  @@index([eventId])
+}
+
+model Review {
+  id           Int      @id @default(autoincrement())
+  studentEmail String
+  eventId      Int
+  rating       Int
+  comment      String   @db.VarChar(1000)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  student      Student  @relation(fields: [studentEmail], references: [email], onDelete: Cascade)
+  event        Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([studentEmail, eventId])
+  @@index([eventId])
+}
