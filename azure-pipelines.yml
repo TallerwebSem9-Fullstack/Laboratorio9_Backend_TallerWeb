@@ -33,5 +33,4 @@ steps:
     appType: 'webAppLinux'
     appName: 'backend-taller-web'
     package: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
-    startUpCommand: 'npm start'
   displayName: 'Deploy Backend to Azure'
