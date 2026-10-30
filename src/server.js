@@ -1,8 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import { categories } from './data/events.js'
-import { execSync } from 'child_process'
-import { eventWithEnrollmentCount, prisma, seedEvents } from './data/database.js'
+import { eventWithEnrollmentCount, initDatabase, prisma, seedEvents } from './data/database.js'
 
 const app = express()
 const port = Number(process.env.PORT ?? 3000)
@@ -215,14 +214,13 @@ app.use((error, _req, res, _next) => {
 
 async function start() {
   const server = app.listen(port, () => console.log('Backend listo en el puerto ' + port))
-  try {
-    console.log('Ejecutando migraciones de base de datos...');
-    execSync('npx prisma migrate deploy', { stdio: 'inherit' });
-    console.log('Migraciones completadas exitosamente.');
-  } catch (err) {
-    console.error('Aviso migracion:', err.message);
-  }
-  seedEvents().then(() => console.log('Eventos sincronizados.')).catch((e) => console.error('Aviso seed:', e.message))
+  initDatabase()
+    .then(() => {
+      console.log('Estructura de base de datos verificada/creada.')
+      return seedEvents()
+    })
+    .then(() => console.log('Eventos sincronizados con éxito.'))
+    .catch((err) => console.error('Aviso inicialización BD:', err.message))
   const shutdown = async () => {
     server.close(async () => {
       await prisma.$disconnect()
