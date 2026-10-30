@@ -29,8 +29,8 @@ steps:
 # 4. Desplegar a la Web App del Backend
 - task: AzureWebApp@1
   inputs:
-    azureSubscription: 'Conexion-Frontend'
+    azureSubscription: 'Conexion-Backend'
     appType: 'webApp'
-    appName: 'frontend-taller-web'
+    appName: 'backend-taller-web'
     package: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
-  displayName: 'Deploy to Azure App Service'
+  displayName: 'Deploy Backend to Azure'
