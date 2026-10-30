@@ -11,10 +11,11 @@ steps:
     version: '20.x'
   displayName: 'Install Node.js'
 
-# 2. Instalar dependencias
+# 2. Instalar dependencias y generar cliente Prisma
 - script: |
     npm install
-  displayName: 'Install dependencies'
+    npx prisma generate
+  displayName: 'Install dependencies and generate Prisma'
 
 # 3. Empaquetar el backend
 - task: ArchiveFiles@2

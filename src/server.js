@@ -7,7 +7,7 @@ const app = express()
 const port = Number(process.env.PORT ?? 3000)
 const demoDelayMs = Math.min(Math.max(Number(process.env.DEMO_DELAY_MS ?? 5000), 0), 30000)
 
-app.use(cors({ origin: (process.env.FRONTEND_ORIGIN ?? 'http://localhost:5173').split(',').map((origin) => origin.trim()) }))
+app.use(cors({ origin: (process.env.FRONTEND_ORIGIN ?? 'http://localhost:5173').split(',').map((origin) => origin.trim().replace(/\/+$/, '')) }))
 app.use(express.json())
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
