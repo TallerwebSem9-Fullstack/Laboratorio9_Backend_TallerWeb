@@ -34,6 +34,16 @@ app.get('/api/health', async (_req, res) => {
 
 app.get('/api/categories', (_req, res) => res.json(categories))
 
+app.get('/api/admin/init-db', async (_req, res) => {
+  try {
+    await initDatabase()
+    await seedEvents()
+    return res.json({ status: 'ok', message: 'Tablas creadas y eventos cargados con éxito.' })
+  } catch (err) {
+    return res.status(500).json({ status: 'error', message: err.message })
+  }
+})
+
 app.get('/api/events', async (_req, res, next) => {
   try {
     const events = await prisma.event.findMany({
@@ -41,7 +51,22 @@ app.get('/api/events', async (_req, res, next) => {
       orderBy: { id: 'asc' },
     })
     res.json(events.map(eventWithEnrollmentCount))
-  } catch (error) { next(error) }
+  } catch (error) {
+    if (error.code === 'P2021') {
+      try {
+        await initDatabase()
+        await seedEvents()
+        const events = await prisma.event.findMany({
+          include: { _count: { select: { enrollments: true } } },
+          orderBy: { id: 'asc' },
+        })
+        return res.json(events.map(eventWithEnrollmentCount))
+      } catch (inner) {
+        return next(inner)
+      }
+    }
+    next(error)
+  }
 })
 
 app.get('/api/events/:id', async (req, res, next) => {
