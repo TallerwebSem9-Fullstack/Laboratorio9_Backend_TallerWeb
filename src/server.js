@@ -213,8 +213,8 @@ app.use((error, _req, res, _next) => {
 })
 
 async function start() {
-  await seedEvents()
-  const server = app.listen(port, () => console.log(`Backend listo en el puerto ${port}`))
+  const server = app.listen(port, () => console.log('Backend listo en el puerto ' + port))
+  seedEvents().then(() => console.log('Eventos sincronizados.')).catch((e) => console.error('Aviso seed:', e.message))
   const shutdown = async () => {
     server.close(async () => {
       await prisma.$disconnect()
